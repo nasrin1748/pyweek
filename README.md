@@ -1,0 +1,1 @@
+I you add background image to canvas the mobile display changes and doesn't look same as the browser.The solution is to draw the image on canvas than using background image for mobile and  browser to look same.
