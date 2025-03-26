@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Flashlight</title>
+
+    <!-- Recommended meta tags -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+    <!-- PyScript CSS -->
+    <link rel="stylesheet" href="https://pyscript.net/releases/2024.11.1/core.css">
+
+    <script type="module" src="https://pyscript.net/releases/2024.11.1/core.js"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-size: cover;
+            background-position: center;
+        }
+        #myCanvas {
+            border: 1px solid black;
+            position: relative;
+        }
+        #canvasContainer {
+            position: relative;
+            width: 700px;
+            height: 700px;
+        }
+        .movingDiv {
+            width: 70px;
+            height: 70px;
+            background-color: red;
+            position: absolute;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+        }
+        #movingDiv1 {
+            background-color: blue;
+        }
+        #movingDiv2 {
+            background-color: green;
+        }
+        #movingDiv3 {
+            background-color: red;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvasContainer">
+        <p id="item">1</p>
+        <canvas id="myCanvas" width="700" height="700"></canvas>
+        <button id="movingDiv1" class="movingDiv"></button>
+        <button id="movingDiv2" class="movingDiv"></button>
+        <button id="movingDiv3" class="movingDiv"></button>
+    </div>
+
+    <audio id="backgroundMusic" loop>
+        <source src="downloads.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <script type="py">
+        from pyscript import when, document
+        from js import PlaySound
+        @when("click", "#movingDiv1")
+        def fun1(event):
+            q = document.querySelector("#item")
+            q.innerText = (int(q.innerText)) + 1
+            PlaySound()
+
+        @when("click", "#movingDiv2")
+        def fun2(event):
+            q = document.querySelector("#item")
+            q.innerText = (int(q.innerText)) + 1
+            PlaySound()
+        @when("click", "#movingDiv3")
+        def fun3(event):
+            q = document.querySelector("#item")
+            q.innerText = (int(q.innerText)) + 1
+            PlaySound()
+    </script>
+
+    <script>
+        const canvas = document.getElementById('myCanvas');
+        const movingDiv1 = document.getElementById('movingDiv1');
+        const movingDiv2 = document.getElementById('movingDiv2');
+        const movingDiv3 = document.getElementById('movingDiv3');
+        const canvasRect = canvas.getBoundingClientRect();
+
+        var sound = new Audio();
+        sound.src = "https://ccrma.stanford.edu/~jos/mp3/pno-cs.mp3";
+        function PlaySound() {
+                 sound.play();
+        }
+
+
+        function getRandomPosition() {
+            const x = Math.random() * (canvas.width - 70); // 100 is the width of the div
+            const y = Math.random() * (canvas.height - 70); // 100 is the height of the div
+            return { x, y };
+        }
+
+       function moveDiv(div) {
+             const { x, y } = getRandomPosition(); 
+             const angle = Math.random() * 360;
+             div.style.left = `${canvasRect.left + x}px`;
+             div.style.top = `${canvasRect.top + y}px`;
+             div.style.transform = 'translate(${x}px, ${y}px';
+             div.style.transform = 'rotate(${angle}deg';
+        }
+
+        function startMoving() {
+            moveDiv(movingDiv1);
+            moveDiv(movingDiv2);
+            moveDiv(movingDiv3);
+            const moveInterval1 = setInterval(() => moveDiv(movingDiv1), 5000);
+            const moveInterval2 = setInterval(() => moveDiv(movingDiv2), 5000);
+            const moveInterval3 = setInterval(() => moveDiv(movingDiv3), 5000);
+
+            setTimeout(() => {
+                clearInterval(moveInterval1);
+                clearInterval(moveInterval2);
+                clearInterval(moveInterval3);
+                movingDiv1.style.display = 'none';
+                movingDiv2.style.display = 'none';
+                movingDiv3.style.display = 'none';
+            }, 20000);
+        }
+
+        startMoving();
+        document.getElementById("backgroundMusic").play();
+        const ctx = canvas.getContext('2d');
+
+        // Function to draw a single hill
+        function drawHill(x, y, width, height, color) {
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.quadraticCurveTo(x + width / 2, y - height, x + width, y);
+            ctx.lineTo(x + width, canvas.height);
+            ctx.lineTo(x, canvas.height);
+            ctx.closePath();
+
+            // Create gradient for 3D effect
+            const gradient = ctx.createLinearGradient(x, y - height, x, y);
+            gradient.addColorStop(0, color);
+            gradient.addColorStop(1, "#006400"); // Dark green color for depth
+
+            // Fill with gradient
+            ctx.fillStyle = gradient;
+            ctx.fill();
+        }
+
+        // Function to draw a curvy zigzag water stream
+        function drawWaterStream() {
+            ctx.beginPath();
+            ctx.bezierCurveTo(200, 300, 150, 400, 300, 500);
+            ctx.bezierCurveTo(350, 550, 450, 450, 500, 550);
+            ctx.bezierCurveTo(550, 600, 650, 500, 700, 600);
+            ctx.lineWidth = 50;
+            ctx.strokeStyle = "#00BFFF"; // Deep sky blue for water
+            ctx.stroke();
+        }
+
+        // Function to draw wriggly flags
+        function drawFlags() {
+            const flagPositions = [
+                { x: 200, y: 300 },
+                { x: 300, y: 500 },
+                { x: 500, y: 550 },
+                { x: 700, y: 600 }
+            ];
+
+            flagPositions.forEach(pos => {
+                ctx.beginPath();
+                ctx.moveTo(pos.x, pos.y);
+                ctx.bezierCurveTo(pos.x + 10, pos.y - 20, pos.x + 30, pos.y + 20, pos.x + 40, pos.y);
+                ctx.strokeStyle = "#FF0000"; // Red color for flags
+                ctx.lineWidth = 5;
+                ctx.stroke();
+            });
+        }
+
+        // Function to draw a person sliding down the water stream
+        function drawPerson(x, y) {
+            // Draw head
+            ctx.beginPath();
+            ctx.arc(x, y, 10, 0, Math.PI * 2, true); // Head
+            ctx.fillStyle = "#FFDAB9"; // Peach color for face
+            ctx.fill();
+
+            // Draw body
+            ctx.beginPath();
+            ctx.moveTo(x, y + 10);
+            ctx.lineTo(x, y + 30); // Body
+            ctx.strokeStyle = "#000000"; // Black color for body
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Draw arms
+            ctx.beginPath();
+            ctx.moveTo(x, y + 15);
+            ctx.lineTo(x - 10, y + 25);
+            ctx.moveTo(x, y + 15);
+            ctx.lineTo(x + 10, y + 25);
+            ctx.stroke();
+
+            // Draw legs
+            ctx.beginPath();
+            ctx.moveTo(x, y + 30);
+            ctx.lineTo(x - 10, y + 40);
+            ctx.moveTo(x, y + 30);
+            ctx.lineTo(x + 10, y + 40);
+            ctx.stroke();
+        }
+
+        // Function to draw a boat
+        function drawBoat(x, y) {
+            // Draw the hull
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(x + 40, y);
+            ctx.quadraticCurveTo(x + 50, y + 10, x + 30, y + 20);
+            ctx.lineTo(x + 10, y + 20);
+            ctx.quadraticCurveTo(x - 10, y + 10, x, y);
+            ctx.closePath();
+            ctx.fillStyle = "#8B4513"; // Brown color for the boat
+            ctx.fill();
+
+            // Draw the mast
+            ctx.beginPath();
+            ctx.moveTo(x + 20, y);
+            ctx.lineTo(x + 20, y - 30);
+            ctx.strokeStyle = "#000000"; // Black color for the mast
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Draw the sail
+            ctx.beginPath();
+            ctx.moveTo(x + 20, y - 30);
+            ctx.lineTo(x + 30, y - 15);
+            ctx.lineTo(x + 20, y);
+            ctx.closePath();
+            ctx.fillStyle = "#FFFFFF"; // White color for the sail
+            ctx.fill();
+        }
+
+        // Function to draw flying birds
+        function drawBirds() {
+            const birdPositions = [
+                { x: 100, y: 100 },
+                { x: 200, y: 150 },
+                { x: 300, y: 100 },
+                { x: 400, y: 150 },
+                { x: 500, y: 100 },
+                { x: 600, y: 150 },
+                { x: 700, y: 100 }
+            ];
+
+            birdPositions.forEach(pos => {
+                ctx.beginPath();
+                ctx.moveTo(pos.x, pos.y);
+                ctx.quadraticCurveTo(pos.x + 10, pos.y - 10, pos.x + 20, pos.y);
+                ctx.moveTo(pos.x + 20, pos.y);
+                ctx.quadraticCurveTo(pos.x + 30, pos.y - 10, pos.x + 40, pos.y);
+                ctx.strokeStyle = "#000000"; // Black color for birds
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            });
+        }
+
+        // Function to draw walking sheep
+        function drawSheep(x, y) {
+            // Draw body
+            ctx.beginPath();
+            ctx.ellipse(x, y, 20, 15, Math.PI / 2, 0, Math.PI * 2);
+            ctx.fillStyle = "#FFFFFF"; // White color for body
+            ctx.fill();
+            ctx.strokeStyle = "#000000"; // Black outline
+            ctx.stroke();
+
+            // Draw head
+            ctx.beginPath();
+            ctx.arc(x - 15, y - 10, 10, 0, Math.PI * 2, true);
+            ctx.fillStyle = "#000000"; // Black color for head
+            ctx.fill();
+
+            // Draw legs
+            ctx.beginPath();
+            ctx.moveTo(x - 10, y + 15);
+            ctx.lineTo(x - 10, y + 25);
+            ctx.moveTo(x + 10, y + 15);
+            ctx.lineTo(x + 10, y + 25);
+            ctx.strokeStyle = "#000000"; // Black color for legs
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+
+        // Function to draw multiple hills
+        function drawHills() {
+            // Clear the canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw hills with varying sizes and positions touching the border
+            drawHill(0, 400, 400, 200, "#32CD32"); // Lime green hill
+            drawHill(200, 450, 600, 250, "#228B22"); // Forest green hill
+            drawHill(400, 500, 400, 150, "#008000"); // Green hill
+
+            // Draw the water stream
+            drawWaterStream();
+
+            // Draw the flags
+            drawFlags();
+
+            // Draw the person sliding down the water stream
+            drawPerson(300, 500); // Change coordinates as needed
+            drawPerson(500, 550); // Change coordinates as needed
+
+            // Draw the boat
+            drawBoat(350, 550); // Change coordinates as needed
+
+            // Draw the birds
+            drawBirds();
+
+            // Draw the sheep
+            drawSheep(100, 450); // Change coordinates as needed
+            drawSheep(200, 480); // Change coordinates as needed
+        }
+
+        // Draw the hills and water stream initially
+        drawHills();
+    </script>
+</body>
+</html>
